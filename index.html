@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Happy Anniversary Mumma & Papa</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Baloo+2:wght@700&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+    /* slightly bigger text inside sections (journey, greetings, letter) */
+.section p{
+    font-size:1.35em;
+    line-height:1.8;
+}
+*{box-sizing:border-box;}
+
+body{
+    margin:0;
+    background:linear-gradient(to bottom,#3b1f2b,#6b3a4a);
+    color:white;
+    font-family:'Lora',serif;      /* body text */
+    overflow-x:hidden;
+}
+
+h1,h2{
+    font-family:'Playfair Display',serif; /* headings */
+    color:#ffb6c1;
+    letter-spacing:0.5px;
+}
+
+.names{
+    font-family:'Baloo 2',cursive;
+    font-size:2.7em;
+    font-weight:700;
+}
+
+/* ===== ENVELOPE OPEN ===== */
+#overlay{
+    position:fixed;
+    inset:0;
+    background:linear-gradient(to bottom,#2a1420,#4b2736);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:1000;
+}
+.envelope-wrap{text-align:center;cursor:pointer;}
+.envelope{
+    width:260px;height:180px;
+    background:#f5efe6;
+    border-radius:6px;
+    position:relative;
+    overflow:hidden;
+    animation:glow 3s infinite;
+}
+@keyframes glow{
+    0%,100%{box-shadow:0 0 18px rgba(255,182,193,.35);}
+    50%{box-shadow:0 0 30px rgba(255,182,193,.6);}
+}
+.envelope::before{
+    content:"";
+    position:absolute;inset:0;
+    background:#e7dccb;
+    clip-path:polygon(0 0,100% 0,50% 55%);
+    transform-origin:top;
+    transition:1s;
+}
+.open .envelope::before{transform:rotateX(180deg);}
+.tap-text{
+    margin-top:20px;
+    font-family:'Playfair Display',serif;
+    color:#ffb6c1;
+    font-size:1.0em;   /* ⬅ increased */
+    min-height:1.5em;
+    text-align:center;
+}
+
+/* ===== MAIN ===== */
+#main{display:none;padding:80px 20px 140px;text-align:center;}
+
+/* ===== SECTION BLOCK ===== */
+.section{
+    max-width:900px;
+    margin:120px auto;
+    padding:40px;
+    border-radius:26px;
+    background:rgba(255,255,255,0.08);
+    box-shadow:0 18px 40px rgba(0,0,0,.35);
+}
+
+/* ===== FADE IN ===== */
+.fade{opacity:0;transform:translateY(40px);transition:1s;}
+.fade.show{opacity:1;transform:none;}
+
+/* ===== PHOTOS ===== */
+.photo-wrap{
+    position:relative;
+    width:90%;
+    max-width:750px;
+    margin:90px auto 15px;
+    border-radius:20px;
+    overflow:hidden;
+    background:#000;
+    animation:beat 4s infinite;
+}
+.photo-wrap:hover{animation:none;}
+@keyframes beat{50%{transform:scale(1.015)}}
+
+.slider{display:flex;transition:.6s;}
+.slider img{
+    min-width:100%;
+    height:auto;
+    object-fit:contain;
+}
+
+/* ===== ENVELOPE OVER PHOTO ===== */
+.envelope-cover{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    transform-origin:left;
+    z-index:2;
+}
+.env-body{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg,#f7efe6,#e9dcc8);
+}
+.env-flap{
+    position:absolute;
+    top:0;left:0;
+    width:100%;
+    height:55%;
+    background:#e3d2b8;
+    clip-path:polygon(0 0,100% 0,50% 65%);
+    transform-origin:top;
+}
+.photo-wrap.unwrapped .envelope-cover{
+    animation:env-open 1.2s ease forwards;
+}
+@keyframes env-open{
+    to{transform:scaleX(0);opacity:0;visibility:hidden;}
+}
+
+/* ===== SLIDER ARROWS ===== */
+.nav{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    background:rgba(0,0,0,.45);
+    color:white;
+    border:none;
+    font-size:24px;
+    padding:8px 14px;
+    cursor:pointer;
+    opacity:0;
+    transition:.3s;
+    z-index:5;              /* 🔥 ADD THIS */
+}
+.photo-wrap:hover .nav{opacity:1;}
+.prev{left:10px;}
+.next{right:10px;}
+
+/* ===== PHOTO TEXT ===== */
+.photo-caption{
+    font-size:1.3em;
+    margin-bottom:60px;
+    color:#ffe5ec;
+}
+
+/* ===== LETTER ===== */
+.letter{
+    background:#ffffffdd;
+    color:#3b1f2b;
+    padding:40px;
+    border-radius:20px;
+}
+
+/* ===== MUSIC ===== */
+.music-btn{
+    position:fixed;
+    bottom:20px;right:20px;
+    width:50px;height:50px;
+    border-radius:50%;
+    background:#ffb6c1;
+    border:none;
+    font-size:20px;
+    cursor:pointer;
+    display:none;
+}
+
+/* ===== FALLING ===== */
+.fall{
+    position:fixed;
+    top:-10%;
+    animation:fall linear infinite;
+    pointer-events:none;
+    opacity:.6;
+}
+.heart{color:#ff9aa2;}
+.petal{color:#ffd1dc;}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+</style>
+</head>
+
+<body>
+
+<audio id="bgm" loop src="song.mp3"></audio>
+<button class="music-btn" onclick="toggleMusic()">🎵</button>
+
+<!-- ENVELOPE -->
+<div id="overlay">
+    <div class="envelope-wrap" onclick="openEnvelope()">
+        <div class="envelope"></div>
+        <div class="tap-text" id="tapText"></div>
+    </div>
+</div>
+
+<div id="main">
+
+<!-- GREETINGS -->
+<div class="section fade">
+    <h1>Happy 22nd Anniversary 💖</h1>
+    <div class="names">Usha Kiran ❤️ Arvind Prakash</div>
+    <p>Since 27 February 2004</p>
+</div>
+
+<!-- JOURNEY -->
+<div class="section fade">
+    <h1>⏳ 22 Years Of Togetherness</h1>
+    <p>Choosing each other — again and again.</p>
+    <p>From strangers, to partners, to home.</p>
+</div>
+
+<!-- PHOTOS -->
+<div class="section fade">
+<h1>UNWRAP THE MEMORIES 💝</h1>
+
+<!-- 10 & 3 -->
+<div class="photo-wrap">
+    <div class="envelope-cover"><div class="env-body"></div><div class="env-flap"></div></div>
+    <button class="nav prev" onclick="slide(this,-1)">‹</button>
+    <button class="nav next" onclick="slide(this,1)">›</button>
+    <div class="slider">
+        <img src="images/p10.jpg">
+        <img src="images/p3.jpg">
+    </div>
+</div>
+<div class="photo-caption">Fav Pics(GOOFY PARTNERS😜) 🤍🧿</div>
+
+<!-- 4 & 5 -->
+<div class="photo-wrap">
+    <div class="envelope-cover"><div class="env-body"></div><div class="env-flap"></div></div>
+    <button class="nav prev" onclick="slide(this,-1)">‹</button>
+    <button class="nav next" onclick="slide(this,1)">›</button>
+    <div class="slider">
+        <img src="images/p4.jpg">
+        <img src="images/p5.jpg">
+    </div>
+</div>
+<div class="photo-caption">Happy with you, Sad with you...Always Choosing You💖</div>
+
+<!-- 1 & 2 -->
+<div class="photo-wrap">
+    <div class="envelope-cover"><div class="env-body"></div><div class="env-flap"></div></div>
+    <button class="nav prev" onclick="slide(this,-1)">‹</button>
+    <button class="nav next" onclick="slide(this,1)">›</button>
+    <div class="slider">
+        <img src="images/p1.jpg">
+        <img src="images/p2.jpg">
+    </div>
+</div>
+<div class="photo-caption">Filmy Partners😎✨</div>
+
+<!-- 6 & 7 -->
+<div class="photo-wrap">
+    <div class="envelope-cover"><div class="env-body"></div><div class="env-flap"></div></div>
+    <button class="nav prev" onclick="slide(this,-1)">‹</button>
+    <button class="nav next" onclick="slide(this,1)">›</button>
+    <div class="slider">
+        <img src="images/p6.jpg">
+        <img src="images/p7.jpg">
+    </div>
+</div>
+<div class="photo-caption">Hamesha Twin Karte Rehna 💞</div>
+
+<!-- 8 & 9 -->
+<div class="photo-wrap">
+    <div class="envelope-cover"><div class="env-body"></div><div class="env-flap"></div></div>
+    <button class="nav prev" onclick="slide(this,-1)">‹</button>
+    <button class="nav next" onclick="slide(this,1)">›</button>
+    <div class="slider">
+        <img src="images/p8.jpg">
+        <img src="images/p9.jpg">
+    </div>
+</div>
+<div class="photo-caption">Finding Home In Eachother,Making Home With Eachother💖</div>
+
+</div>
+
+<!-- LETTER -->
+<div class="section fade letter">
+    <h1>From Us 💌</h1>
+    <p>Mumma and Papa, your journey together began through an arranged marriage, where two individuals slowly learned each other’s worlds. Like every real relationship, there were moments of disagreement, misunderstandings, and plenty of learning along the way. But with time, patience, and effort, you both became better for each other. What started as adjustment slowly turned into comfort, and comfort into a bond that feels deeper and more beautiful with every passing year. Today, it’s easy to see that love isn’t about being perfect—it’s about choosing each other, even on difficult days, and smiling together on the easier ones. The warmth, stability, and love that fill our home come from the quiet care you share. Thank you for showing me that true romance grows through understanding, respect, and time. Happy 22 years of choosing each other <33333</p>
+</div>
+
+</div>
+
+<script>
+    /* TYPEWRITER EFFECT FOR STARTING TEXT */
+const startText = "A little something, made with love 💌";
+let charIndex = 0;
+
+function typeStartText(){
+    if(charIndex < startText.length){
+        document.getElementById("tapText").innerHTML += startText.charAt(charIndex);
+        charIndex++;
+        setTimeout(typeStartText, 60); // speed (smaller = faster)
+    }
+}
+
+/* start typing as soon as page loads */
+window.onload = typeStartText;
+const music=document.getElementById("bgm");
+
+function observePhotoEnvelopes(){
+    const photos = document.querySelectorAll(".photo-wrap");
+
+    const observer = new IntersectionObserver(entries=>{
+        entries.forEach(entry=>{
+            if(entry.isIntersecting){
+                entry.target.classList.add("unwrapped");
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.4 });
+
+    photos.forEach(p=>{
+        observer.observe(p);
+
+        // extra safety for touch devices
+        p.addEventListener("mouseenter", ()=>p.classList.add("unwrapped"), { once:true });
+        p.addEventListener("touchstart", ()=>p.classList.add("unwrapped"), { once:true });
+    });
+}
+
+function openEnvelope(){
+    document.getElementById("overlay").style.display="none";
+    document.getElementById("main").style.display="block";
+
+    music.currentTime=37;
+    music.volume=0;
+    music.play();
+    document.querySelector(".music-btn").style.display="block";
+
+    let v=0;
+    setInterval(()=>{if(v<1){v+=.02;music.volume=v}},200);
+
+    document.querySelectorAll(".fade").forEach((s,i)=>{
+        setTimeout(()=>s.classList.add("show"),i*300);
+    });
+
+    startFalling();
+    observePhotoEnvelopes();
+}
+
+
+
+function toggleMusic(){
+    music.paused ? music.play() : music.pause();
+}
+
+function slide(btn, dir){
+    const wrap = btn.closest(".photo-wrap");
+    const slider = wrap.querySelector(".slider");
+    const total = slider.children.length;
+
+    let index = wrap.dataset.index
+        ? parseInt(wrap.dataset.index)
+        : 0;
+
+    index += dir;
+
+    if(index < 0) index = total - 1;
+    if(index >= total) index = 0;
+
+    slider.style.transform = `translateX(${-index * 100}%)`;
+    wrap.dataset.index = index;
+}
+
+function startFalling(){
+    setInterval(()=>{
+        const d=document.createElement("div");
+        const h=Math.random()>.6;
+        d.className="fall "+(h?"heart":"petal");
+        d.innerText=h?"❤":"🌸";
+        d.style.left=Math.random()*100+"vw";
+        d.style.fontSize=(14+Math.random()*14)+"px";
+        d.style.animationDuration=(10+Math.random()*10)+"s";
+        document.body.appendChild(d);
+        setTimeout(()=>d.remove(),20000);
+    },600);
+}
+</script>
+
+</body>
+</html>
